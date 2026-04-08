@@ -1,0 +1,14 @@
+{
+  "name": "sharebite",
+  "version": "1.0.0",
+  "description": "ShareBite — Full Stack MERN Food Donation Platform",
+  "scripts": {
+    "install-all": "cd server && npm install && cd ../client && npm install",
+    "dev-server": "cd server && npm run dev",
+    "dev-client": "cd client && npm start",
+    "start-server": "cd server && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
