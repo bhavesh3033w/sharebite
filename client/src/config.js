@@ -1,0 +1,1 @@
+export const API = "https://sharebite-backend-uucd.onrender.com";
