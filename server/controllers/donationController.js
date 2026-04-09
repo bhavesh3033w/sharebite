@@ -29,7 +29,7 @@ const getDonations = async (req, res) => {
     let donations;
 
     if (req.user.role === 'ngo') {
-      donations = await Donation.find().sort({ createdAt: -1 }).populate('userId', 'name email');
+      donations = await Donation.find().sort({ createdAt: -1 }).populate('userId', 'name email').populate('acceptedBy', 'name');
     } else {
       donations = await Donation.find({ userId: req.user._id }).sort({ createdAt: -1 });
     }
@@ -54,9 +54,23 @@ const updateDonation = async (req, res) => {
       return res.status(404).json({ message: 'Donation not found' });
     }
 
-    donation.status = status;
+
+    if (status === "Accepted") {
+      if (donation.status !== "Pending") {
+        return res.status(400).json({ message: "Already accepted or rejected" });
+      }
+    
+      donation.status = "Accepted";
+      donation.acceptedBy = req.user._id;   // 👈 NGO ID save
+      donation.acceptedAt = new Date();     // 👈 time save
+    
+    } else if (status === "Rejected") {
+      donation.status = "Rejected";
+    }
+    
     await donation.save();
 
+    
     res.json(donation);
   } catch (error) {
     res.status(500).json({ message: error.message });
