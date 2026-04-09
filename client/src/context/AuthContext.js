@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (name, email, password, role) => {
-    const { data } = await axios.post(`${API_URL}/auth/signup`, { name, email, password, role });
+    const { data } = await axios.post(`${API_URL}/auth/register`, { name, email, password, role });
     setUser(data);
     localStorage.setItem('sharebite_user', JSON.stringify(data));
     axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
