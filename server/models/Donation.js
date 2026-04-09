@@ -1,7 +1,18 @@
 const mongoose = require('mongoose');
 
 const donationSchema = new mongoose.Schema(
-  {
+  { 
+    
+    acceptedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    acceptedAt: {
+      type: Date
+    },
+
+
+
     type: {
       type: String,
       enum: ['Food', 'Clothes'],
