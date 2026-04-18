@@ -322,5 +322,5 @@ const VolunteerDashboard = () => {
     </div>
   );
 };
-
+// volunteer availability feature added
 export default VolunteerDashboard;
