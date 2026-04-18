@@ -173,6 +173,7 @@ const NgoDashboard = () => {
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {donations.map(d => (
+                    
                     <div key={d._id} className="bg-white rounded-2xl p-6 border shadow-sm" style={{ borderColor: '#F3F4F6' }}>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -187,6 +188,11 @@ const NgoDashboard = () => {
                           </div>
                         </div>
                         <StatusBadge status={d.status} />
+                        {d.status === "Accepted" && d.acceptedBy && (
+  <p style={{ color: "green", fontWeight: "bold", marginTop: "6px" }}>
+    Accepted by {d.acceptedBy.name} ✅
+  </p>
+)}
                       </div>
 
                       <div className="space-y-1.5 mb-5">
