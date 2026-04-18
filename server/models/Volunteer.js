@@ -7,16 +7,25 @@ const volunteerSchema = new mongoose.Schema(
       required: [true, 'Name is required'],
       trim: true,
     },
+
     skills: {
       type: String,
       required: [true, 'Skills are required'],
       trim: true,
     },
+
     contact: {
       type: String,
       required: [true, 'Contact is required'],
       trim: true,
     },
+
+    availabilityStatus: {
+      type: String,
+      enum: ["Available", "Busy", "Not Available"],
+      default: "Available"
+    },
+
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
