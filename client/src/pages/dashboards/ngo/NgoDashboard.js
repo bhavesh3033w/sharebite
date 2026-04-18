@@ -246,7 +246,6 @@ const NgoDashboard = () => {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                  {/* Updated Volunteers Map Starts Here */}
                   {volunteers.map(v => (
                     <div
                       key={v._id}
@@ -313,7 +312,7 @@ const NgoDashboard = () => {
                           </p>
                         </div>
 
-                        {/* NEW Availability Status */}
+                        {/* Updated Availability Status */}
                         <div>
                           <p
                             className="text-xs font-medium mb-1"
@@ -326,21 +325,21 @@ const NgoDashboard = () => {
                             className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
                             style={{
                               background:
-                                v.availabilityStatus === 'Available'
+                                (v.availabilityStatus || 'Available') === 'Available'
                                   ? '#DCFCE7'
                                   : v.availabilityStatus === 'Busy'
                                   ? '#FEF3C7'
                                   : '#FEE2E2',
 
                               color:
-                                v.availabilityStatus === 'Available'
+                                (v.availabilityStatus || 'Available') === 'Available'
                                   ? '#166534'
                                   : v.availabilityStatus === 'Busy'
                                   ? '#92400E'
                                   : '#991B1B'
                             }}
                           >
-                            {v.availabilityStatus === 'Available' && 'Available ✅'}
+                            {(v.availabilityStatus || 'Available') === 'Available' && 'Available ✅'}
 
                             {v.availabilityStatus === 'Busy' && 'Busy 🟡'}
 
@@ -350,7 +349,6 @@ const NgoDashboard = () => {
                       </div>
                     </div>
                   ))}
-                  {/* Updated Volunteers Map Ends Here */}
                 </div>
               )}
             </div>
