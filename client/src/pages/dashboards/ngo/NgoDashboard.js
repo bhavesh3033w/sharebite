@@ -189,10 +189,10 @@ const NgoDashboard = () => {
                         </div>
                         <StatusBadge status={d.status} />
                         {d.status === "Accepted" && d.acceptedBy && (
-  <p style={{ color: "green", fontWeight: "bold", marginTop: "6px" }}>
-    Accepted by {d.acceptedBy.name} ✅
-  </p>
-)}
+                          <p style={{ color: "green", fontWeight: "bold", marginTop: "6px" }}>
+                            Accepted by {d.acceptedBy.name} ✅
+                          </p>
+                        )}
                       </div>
 
                       <div className="space-y-1.5 mb-5">
@@ -246,8 +246,14 @@ const NgoDashboard = () => {
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {/* Updated Volunteers Map Starts Here */}
                   {volunteers.map(v => (
-                    <div key={v._id} className="bg-white rounded-2xl p-6 border shadow-sm" style={{ borderColor: '#F3F4F6' }}>
+                    <div
+                      key={v._id}
+                      className="bg-white rounded-2xl p-6 border shadow-sm"
+                      style={{ borderColor: '#F3F4F6' }}
+                    >
+                      {/* Header */}
                       <div className="flex items-center gap-3 mb-4">
                         <div
                           className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold"
@@ -255,23 +261,96 @@ const NgoDashboard = () => {
                         >
                           {v.name.charAt(0).toUpperCase()}
                         </div>
+
                         <div>
-                          <p className="font-semibold" style={{ color: '#2D2D2D' }}>{v.name}</p>
-                          <p className="text-xs" style={{ color: '#6B7280' }}>Volunteer</p>
+                          <p
+                            className="font-semibold"
+                            style={{ color: '#2D2D2D' }}
+                          >
+                            {v.name}
+                          </p>
+
+                          <p
+                            className="text-xs"
+                            style={{ color: '#6B7280' }}
+                          >
+                            Volunteer
+                          </p>
                         </div>
                       </div>
-                      <div className="space-y-2">
+
+                      {/* Details */}
+                      <div className="space-y-3">
                         <div>
-                          <p className="text-xs font-medium mb-1" style={{ color: '#6B7280' }}>Skills</p>
-                          <p className="text-sm" style={{ color: '#2D2D2D' }}>{v.skills}</p>
+                          <p
+                            className="text-xs font-medium mb-1"
+                            style={{ color: '#6B7280' }}
+                          >
+                            Skills
+                          </p>
+
+                          <p
+                            className="text-sm"
+                            style={{ color: '#2D2D2D' }}
+                          >
+                            {v.skills}
+                          </p>
                         </div>
+
                         <div>
-                          <p className="text-xs font-medium mb-1" style={{ color: '#6B7280' }}>Contact</p>
-                          <p className="text-sm" style={{ color: '#2D2D2D' }}>{v.contact}</p>
+                          <p
+                            className="text-xs font-medium mb-1"
+                            style={{ color: '#6B7280' }}
+                          >
+                            Contact
+                          </p>
+
+                          <p
+                            className="text-sm"
+                            style={{ color: '#2D2D2D' }}
+                          >
+                            {v.contact}
+                          </p>
+                        </div>
+
+                        {/* NEW Availability Status */}
+                        <div>
+                          <p
+                            className="text-xs font-medium mb-1"
+                            style={{ color: '#6B7280' }}
+                          >
+                            Availability
+                          </p>
+
+                          <span
+                            className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                            style={{
+                              background:
+                                v.availabilityStatus === 'Available'
+                                  ? '#DCFCE7'
+                                  : v.availabilityStatus === 'Busy'
+                                  ? '#FEF3C7'
+                                  : '#FEE2E2',
+
+                              color:
+                                v.availabilityStatus === 'Available'
+                                  ? '#166534'
+                                  : v.availabilityStatus === 'Busy'
+                                  ? '#92400E'
+                                  : '#991B1B'
+                            }}
+                          >
+                            {v.availabilityStatus === 'Available' && 'Available ✅'}
+
+                            {v.availabilityStatus === 'Busy' && 'Busy 🟡'}
+
+                            {v.availabilityStatus === 'Not Available' && 'Not Available ❌'}
+                          </span>
                         </div>
                       </div>
                     </div>
                   ))}
+                  {/* Updated Volunteers Map Ends Here */}
                 </div>
               )}
             </div>
