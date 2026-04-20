@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
-const API_URL = "https://sharebite-backend-uucd.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -27,8 +27,15 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
-  const signup = async (name, email, password, role) => {
-    const { data } = await axios.post(`${API_URL}/auth/signup`, { name, email, password, role });
+  const signup = async (name, email, password, role, ngoCertificate, idProofType) => {
+    const { data } = await axios.post(`${API_URL}/auth/signup`, { 
+      name, 
+      email, 
+      password, 
+      role, 
+      ngoCertificate, 
+      idProofType 
+    });
     setUser(data);
     localStorage.setItem('sharebite_user', JSON.stringify(data));
     axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;

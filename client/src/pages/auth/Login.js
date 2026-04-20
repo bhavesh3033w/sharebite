@@ -18,9 +18,18 @@ const Login = () => {
     try {
       const user = await login(form.email, form.password);
       toast.success(`Welcome back, ${user.name}! 🎉`);
-      if (user.role === 'donor') navigate('/donor-dashboard');
-      else if (user.role === 'ngo') navigate('/ngo-dashboard');
-      else navigate('/volunteer-dashboard');
+      
+      // Updated navigation logic with admin role
+      if (user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (user.role === 'donor') {
+        navigate('/donor-dashboard');
+      } else if (user.role === 'ngo') {
+        navigate('/ngo-dashboard');
+      } else {
+        navigate('/volunteer-dashboard');
+      }
+      
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
@@ -101,7 +110,7 @@ const Login = () => {
           <p className="text-center mt-6 text-sm" style={{ color: '#6B7280' }}>
             Don't have an account?{' '}
             <Link to="/signup" className="font-semibold" style={{ color: '#FF6B35' }}>
-              Create one free
+              Create new
             </Link>
           </p>
         </div>
