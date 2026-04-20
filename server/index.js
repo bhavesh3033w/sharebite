@@ -7,10 +7,15 @@ dotenv.config();
 
 const app = express();
 
-// CORS (Temporary wildcard for debugging)
+// CORS
 app.use(cors({
-  origin: "*"
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors());
 
 app.use(express.json());
 
