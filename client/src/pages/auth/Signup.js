@@ -60,7 +60,8 @@ const Signup = () => {
         const formData = new FormData();
         formData.append('certificate', certificateFile);
 
-        const uploadRes = await fetch('https://your-render-backend.onrender.com/api/upload/certificate', {
+        const uploadRes = await fetch(
+            'https://sharebite-backend-uucd.onrender.com/api/upload/certificate', {
           method: 'POST',
           body: formData
         });
