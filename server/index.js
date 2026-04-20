@@ -7,15 +7,9 @@ dotenv.config();
 
 const app = express();
 
-// CORS
+// CORS (Temporary wildcard for debugging)
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://sharebite-tau.vercel.app",
-    "https://sharebite-lmngrte24-bhavesh3033ws-projects.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: "*"
 }));
 
 app.use(express.json());
