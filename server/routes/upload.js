@@ -6,7 +6,7 @@ const storage = multer.diskStorage({
 
  destination: function(req, file, cb) {
 
-   cb(null, '/tmp'); // Render-safe temp folder
+    cb(null, 'uploads/'); 
 
  },
 
