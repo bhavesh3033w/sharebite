@@ -102,7 +102,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#FFF7F2' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: '#FFF7F2' }}>
       
       <div className="hidden lg:flex lg:w-1/2 relative">
         <img
