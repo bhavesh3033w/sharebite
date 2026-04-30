@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "https://sharebite-backend-uucd.onrender.com/api";
 export const donationAPI = {
   create: (data) =>
     axios.post(`${API_URL}/donations`, data),
