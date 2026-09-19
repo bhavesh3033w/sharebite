@@ -66,26 +66,25 @@ const registerVolunteer = async (req, res) => {
 
 
 // GET /api/volunteers
+// GET /api/volunteers
 const getVolunteers = async (req, res) => {
-
   try {
-
-    const volunteers =
-      await Volunteer.find().sort({
-        createdAt: -1
-      });
+    const volunteers = await Volunteer.find()
+      .populate(
+        'userId',
+        'name email role verificationStatus'
+      )
+      .sort({ createdAt: -1 });
 
     res.json(volunteers);
-
   } catch (error) {
-
     res.status(500).json({
       message: error.message
     });
-
   }
-
 };
+
+
 
 
 module.exports = {
