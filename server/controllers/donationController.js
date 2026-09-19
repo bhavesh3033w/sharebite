@@ -1,4 +1,3 @@
-
 const Donation = require('../models/Donation');
 const User = require('../models/User');
 
@@ -44,12 +43,21 @@ const getDonations = async (req, res) => {
         .populate('assignedVolunteer', 'name email');
 
     } else if (req.user.role === 'volunteer') {
+      // Debug logs added here
+      console.log('Logged-in User ID:', req.user._id);
+      console.log('Logged-in Role:', req.user.role);
+
+      // added .populate('assignedVolunteer', 'name email')
       donations = await Donation.find({
         assignedVolunteer: req.user._id
       })
         .sort({ createdAt: -1 })
         .populate('userId', 'name email')
-        .populate('acceptedBy', 'name email');
+        .populate('acceptedBy', 'name email')
+        .populate('assignedVolunteer', 'name email'); 
+
+      // Debug log added here
+      console.log('Volunteer Donations:', donations);
 
     } else {
       donations = await Donation.find({
@@ -149,9 +157,11 @@ const assignVolunteer = async (req, res) => {
       });
     }
 
+    // ✅ Updated to verify approved volunteer status
     const volunteer = await User.findOne({
       _id: volunteerId,
-      role: 'volunteer'
+      role: 'volunteer',
+      verificationStatus: 'Approved'
     });
 
     if (!volunteer) {
