@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 
 const API_URL = "https://sharebite-backend-uucd.onrender.com/api";
@@ -23,6 +24,12 @@ export const donationAPI = {
     axios.put(
       `${API_URL}/donations/${id}/assign-volunteer`,
       { volunteerId }
+    ),
+
+  // NGO unassigns volunteer
+  unassignVolunteer: (id) =>
+    axios.put(
+      `${API_URL}/donations/${id}/unassign-volunteer`
     ),
 
   // Volunteer updates delivery status
