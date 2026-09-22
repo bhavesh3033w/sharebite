@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Donation = require('../models/Donation');
 const User = require('../models/User');
 
@@ -30,24 +31,24 @@ const createDonation = async (req, res) => {
 };
 
 // GET /api/donations
-// Donor, NGO and Volunteer get relevant donations
+// Donor, NGO, and Volunteer get relevant donations
 const getDonations = async (req, res) => {
   try {
     let donations;
 
     if (req.user.role === 'ngo') {
-      donations = await Donation.find()
+      donations = await Donation.find({
+        $or: [
+          { status: 'Pending' },
+          { acceptedBy: req.user._id }
+        ]
+      })
         .sort({ createdAt: -1 })
         .populate('userId', 'name email')
         .populate('acceptedBy', 'name email')
         .populate('assignedVolunteer', 'name email');
 
     } else if (req.user.role === 'volunteer') {
-      // Debug logs added here
-      console.log('Logged-in User ID:', req.user._id);
-      console.log('Logged-in Role:', req.user.role);
-
-      // added .populate('assignedVolunteer', 'name email')
       donations = await Donation.find({
         assignedVolunteer: req.user._id
       })
@@ -56,10 +57,8 @@ const getDonations = async (req, res) => {
         .populate('acceptedBy', 'name email')
         .populate('assignedVolunteer', 'name email'); 
 
-      // Debug log added here
-      console.log('Volunteer Donations:', donations);
-
     } else {
+      // Donor gets their own donations
       donations = await Donation.find({
         userId: req.user._id
       })
@@ -81,6 +80,10 @@ const getDonations = async (req, res) => {
 const updateDonation = async (req, res) => {
   try {
     const { status } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Donation ID format' });
+    }
 
     if (!['Accepted', 'Rejected'].includes(status)) {
       return res.status(400).json({
@@ -106,9 +109,7 @@ const updateDonation = async (req, res) => {
       donation.status = 'Accepted';
       donation.acceptedBy = req.user._id;
       donation.acceptedAt = new Date();
-    }
-
-    if (status === 'Rejected') {
+    } else if (status === 'Rejected') {
       donation.status = 'Rejected';
     }
 
@@ -131,9 +132,13 @@ const assignVolunteer = async (req, res) => {
   try {
     const { volunteerId } = req.body;
 
-    if (!volunteerId) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Donation ID format' });
+    }
+
+    if (!volunteerId || !mongoose.Types.ObjectId.isValid(volunteerId)) {
       return res.status(400).json({
-        message: 'Volunteer ID is required'
+        message: 'A valid Volunteer ID is required'
       });
     }
 
@@ -157,7 +162,6 @@ const assignVolunteer = async (req, res) => {
       });
     }
 
-    // ✅ Updated to verify approved volunteer status
     const volunteer = await User.findOne({
       _id: volunteerId,
       role: 'volunteer',
@@ -192,6 +196,10 @@ const assignVolunteer = async (req, res) => {
 const updateDeliveryStatus = async (req, res) => {
   try {
     const { status, deliveryNotes } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Donation ID format' });
+    }
 
     const allowedStatuses = [
       'Pickup Started',
@@ -250,6 +258,10 @@ const updateDeliveryStatus = async (req, res) => {
 // View donation tracking details
 const getDonationTracking = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Donation ID format' });
+    }
+
     const donation = await Donation.findById(req.params.id)
       .populate('userId', 'name email')
       .populate('acceptedBy', 'name email')
@@ -262,6 +274,7 @@ const getDonationTracking = async (req, res) => {
     }
 
     const isDonor =
+      donation.userId &&
       donation.userId._id.toString() === req.user._id.toString();
 
     const isNGO =
@@ -286,11 +299,87 @@ const getDonationTracking = async (req, res) => {
   }
 };
 
+// PUT /api/donations/:id/proof-of-delivery
+// NGO uploads proof of delivery
+const uploadProofOfDelivery = async (req, res) => {
+  try {
+    const {
+      photoUrl,
+      receiverName,
+      message
+    } = req.body;
+
+    // Added MongoDB ID validation here for consistency
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid Donation ID format' });
+    }
+
+    if (!photoUrl || !receiverName) {
+      return res.status(400).json({
+        message: 'Photo URL and receiver name are required'
+      });
+    }
+
+    const donation = await Donation.findById(req.params.id);
+
+    if (!donation) {
+      return res.status(404).json({
+        message: 'Donation not found'
+      });
+    }
+
+    // Only the accepting NGO can upload proof
+    if (
+      !donation.acceptedBy ||
+      donation.acceptedBy.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: 'Only the accepting NGO can upload proof'
+      });
+    }
+
+    // Proof can be uploaded only after delivery
+    if (donation.status !== 'Delivered') {
+      return res.status(400).json({
+        message: 'Proof can be uploaded only after delivery'
+      });
+    }
+
+    // Prevent duplicate proof upload
+    if (donation.proofOfDelivery?.photoUrl) {
+      return res.status(400).json({
+        message: 'Proof of delivery has already been uploaded'
+      });
+    }
+
+    donation.proofOfDelivery = {
+      photoUrl,
+      receiverName,
+      message: message || '',
+      uploadedAt: new Date(),
+      uploadedBy: req.user._id
+    };
+
+    await donation.save();
+
+    res.status(200).json({
+      message: 'Proof of delivery uploaded successfully',
+      donation
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createDonation,
   getDonations,
   updateDonation,
   assignVolunteer,
   updateDeliveryStatus,
-  getDonationTracking
+  getDonationTracking,
+  uploadProofOfDelivery
 };

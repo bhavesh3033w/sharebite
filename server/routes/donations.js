@@ -8,7 +8,8 @@ const {
   updateDonation,
   assignVolunteer,
   updateDeliveryStatus,
-  getDonationTracking
+  getDonationTracking,
+  uploadProofOfDelivery // ✅ Added import
 } = require('../controllers/donationController');
 
 const {
@@ -53,6 +54,14 @@ router.put(
   protect,
   requireRole('volunteer'),
   updateDeliveryStatus
+);
+
+// NGO uploads proof of delivery (✅ Added route)
+router.put(
+  '/:id/proof-of-delivery',
+  protect,
+  requireRole('ngo'),
+  uploadProofOfDelivery
 );
 
 // NGO accepts or rejects donation

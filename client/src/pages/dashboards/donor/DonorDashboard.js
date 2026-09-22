@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '../../../context/AuthContext';
@@ -37,11 +36,9 @@ const DonorDashboard = () => {
   const fetchDonations = async () => {
     try {
       const { data } = await donationAPI.getAll();
-
       setDonations(data);
     } catch (error) {
       console.error('Failed to load donations:', error);
-
       toast.error('Failed to load donations');
     } finally {
       setLoading(false);
@@ -84,16 +81,17 @@ const DonorDashboard = () => {
 
   const total = donations.length;
 
+  // Case-insensitive stats calculation
   const accepted = donations.filter(
-    (d) => d.status === 'Accepted'
+    (d) => d.status?.toLowerCase() === 'accepted'
   ).length;
 
   const pending = donations.filter(
-    (d) => d.status === 'Pending'
+    (d) => d.status?.toLowerCase() === 'pending'
   ).length;
 
   const rejected = donations.filter(
-    (d) => d.status === 'Rejected'
+    (d) => d.status?.toLowerCase() === 'rejected'
   ).length;
 
   return (
@@ -387,8 +385,8 @@ const DonorDashboard = () => {
               {donations.map((d) => (
                 <div
                   key={d._id}
-                  className="bg-white rounded-2xl p-6 border transition-all shadow-sm"
-                  style={{ borderColor: '#F3F4F6' }}
+                  className="bg-white rounded-2xl p-6 border transition-all shadow-sm flex flex-col"
+                  style={{ borderColor: '#F3F4F6', height: '100%' }}
                   onMouseEnter={(e) =>
                     (e.currentTarget.style.transform = 'translateY(-3px)')
                   }
@@ -434,7 +432,7 @@ const DonorDashboard = () => {
                   </div>
 
                   {/* Donation Details */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm">
                       <span style={{ color: '#6B7280' }}>
                         Qty:
@@ -459,29 +457,95 @@ const DonorDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Status-Based Delivery Tracker */}
-                  {trackingStatuses.includes(d.status) && (
-                    <DeliveryTracker donation={d} />
-                  )}
+                  <div className="mt-auto">
+                    {/* Status-Based Delivery Tracker (Case-Insensitive) */}
+                    {trackingStatuses.some(s => s.toLowerCase() === d.status?.toLowerCase()) && (
+                      <DeliveryTracker donation={d} />
+                    )}
 
-                  {/* Waiting Message */}
-                  {d.status === 'Accepted' && (
-                    <div className="mt-5 rounded-xl bg-blue-50 p-3 text-sm text-blue-700">
-                      ⏳ Waiting for a volunteer to be assigned.
-                    </div>
-                  )}
+                    {/* Proof of Delivery (Case-Insensitive check) */}
+                    {d.status?.toLowerCase() === 'delivered' && (
+                      <div className="mt-5 rounded-xl border border-green-200 bg-green-50 p-4">
+                        {d.proofOfDelivery?.photoUrl ? (
+                          <>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">✅</span>
+                              <h4 className="font-semibold text-green-800">
+                                Food Delivered Successfully
+                              </h4>
+                            </div>
 
-                  {d.status === 'Pending' && (
-                    <div className="mt-5 rounded-xl bg-yellow-50 p-3 text-sm text-yellow-700">
-                      ⏳ Waiting for NGO approval.
-                    </div>
-                  )}
+                            <p className="text-sm text-green-700 mb-1">
+                              <strong>Receiver:</strong>{' '}
+                              {d.proofOfDelivery.receiverName}
+                            </p>
 
-                  {d.status === 'Rejected' && (
-                    <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">
-                      ❌ This donation was rejected.
-                    </div>
-                  )}
+                            {d.proofOfDelivery.message && (
+                              <p className="text-sm text-green-700 mb-2">
+                                <strong>Message:</strong>{' '}
+                                {d.proofOfDelivery.message}
+                              </p>
+                            )}
+
+<img
+  src={d.proofOfDelivery.photoUrl}
+  alt="Delivery Proof"
+  className="w-full max-h-64 object-cover rounded-lg mt-3 border border-green-200"
+/>
+
+<a
+  href={d.proofOfDelivery.photoUrl}
+  target="_blank"
+  rel="noreferrer"
+  className="inline-block mt-3 rounded-lg bg-green-700 px-4 py-2 text-xs font-semibold text-white hover:bg-green-800"
+>
+  📸 View Full Photo
+</a>
+
+                            {d.proofOfDelivery.uploadedAt && (
+                              <p className="mt-2 text-xs text-green-600">
+                                Proof uploaded on:{' '}
+                                {new Date(
+                                  d.proofOfDelivery.uploadedAt
+                                ).toLocaleDateString('en-IN')}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-semibold text-yellow-800">
+                              ⏳ Delivery completed
+                            </p>
+
+                            <p className="mt-1 text-sm text-yellow-700">
+                              Proof of delivery has not been uploaded by the NGO yet.
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Waiting Message (Case-Insensitive) */}
+                    {d.status?.toLowerCase() === 'accepted' && (
+                      <div className="mt-5 rounded-xl bg-blue-50 p-3 text-sm text-blue-700">
+                        ⏳ Waiting for a volunteer to be assigned.
+                      </div>
+                    )}
+
+                    {/* Pending Message (Case-Insensitive) */}
+                    {d.status?.toLowerCase() === 'pending' && (
+                      <div className="mt-5 rounded-xl bg-yellow-50 p-3 text-sm text-yellow-700">
+                        ⏳ Waiting for NGO approval.
+                      </div>
+                    )}
+
+                    {/* Rejected Message (Case-Insensitive) */}
+                    {d.status?.toLowerCase() === 'rejected' && (
+                      <div className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">
+                        ❌ This donation was rejected.
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

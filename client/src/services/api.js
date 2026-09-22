@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_URL = "https://sharebite-backend-uucd.onrender.com/api";
@@ -40,6 +39,13 @@ export const donationAPI = {
         status,
         deliveryNotes
       }
+    ),
+
+  // NGO uploads Proof of Delivery
+  uploadProofOfDelivery: (id, data) =>
+    axios.put(
+      `${API_URL}/donations/${id}/proof-of-delivery`,
+      data
     ),
 
   // Get donation tracking details
