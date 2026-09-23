@@ -60,7 +60,7 @@ function AdminDashboard() {
             <button
               onClick={() =>
                 window.open(
-                    `https://sharebite-backend-uucd.onrender.com/${user.ngoCertificate}`,
+                    `https://sharebite-backend-uucd.onrender.com${user.ngoCertificate}`,
                     '_blank'
                     )
               }
