@@ -33,6 +33,33 @@ const donationSchema = new mongoose.Schema(
       trim: true
     },
 
+    // 📸 Proof of Delivery Details
+    proofOfDelivery: {
+      photoUrl: {
+        type: String,
+        trim: true
+      },
+
+      receiverName: {
+        type: String,
+        trim: true
+      },
+
+      message: {
+        type: String,
+        trim: true
+      },
+
+      uploadedAt: {
+        type: Date
+      },
+
+      uploadedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }
+    },
+
     // Donation Information
     type: {
       type: String,
