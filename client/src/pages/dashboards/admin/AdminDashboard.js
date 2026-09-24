@@ -726,12 +726,13 @@ function AdminDashboard() {
                   <div>
                     {user.ngoCertificate && (
                       <button
-                        onClick={() =>
-                          window.open(
-                            `https://sharebite-backend-uucd.onrender.com${user.ngoCertificate}`,
-                            '_blank'
-                          )
-                        }
+                      onClick={() =>
+                        window.open(
+                          user.ngoCertificate,
+                          '_blank',
+                          'noopener,noreferrer'
+                        )
+                      }
                         style={{
                           marginRight: '8px',
                           background: '#2563eb',
