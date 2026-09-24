@@ -9,7 +9,10 @@ const generateToken = (id) => {
   );
 };
 
+
+// =========================
 // SIGNUP
+// =========================
 const signup = async (req, res) => {
   try {
     console.log(req.body);
@@ -20,7 +23,8 @@ const signup = async (req, res) => {
       password,
       role,
       ngoCertificate,
-      idProofType
+      idProofType,
+      idProof
     } = req.body;
 
     if (!name || !email || !password || !role) {
@@ -29,6 +33,7 @@ const signup = async (req, res) => {
       });
     }
 
+    // CHECK EXISTING USER
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -37,38 +42,63 @@ const signup = async (req, res) => {
       });
     }
 
+    // CREATE USER
     const user = await User.create({
       name,
       email,
       password,
       role,
-      ngoCertificate,
-      idProofType,
-      verificationStatus: role === 'donor' ? 'Approved' : 'Pending'
+
+      // NGO DOCUMENT
+      ngoCertificate: ngoCertificate || '',
+
+      // VOLUNTEER DOCUMENT
+      idProofType: idProofType || '',
+      idProof: idProof || '',
+
+      // DONOR = APPROVED
+      // NGO / VOLUNTEER = PENDING
+      verificationStatus:
+        role === 'donor'
+          ? 'Approved'
+          : 'Pending'
     });
 
+    // RESPONSE
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       verificationStatus: user.verificationStatus,
+
       ngoCertificate: user.ngoCertificate,
+
       idProofType: user.idProofType,
+      idProof: user.idProof,
+
       token: generateToken(user._id)
     });
 
   } catch (error) {
+    console.error('Signup Error:', error);
+
     res.status(500).json({
       message: error.message
     });
   }
 };
 
+
+// =========================
 // LOGIN
+// =========================
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const {
+      email,
+      password
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -76,46 +106,79 @@ const login = async (req, res) => {
       });
     }
 
+    // FIND USER
     const user = await User.findOne({ email });
 
-    if (!user || !(await user.matchPassword(password))) {
+    if (
+      !user ||
+      !(await user.matchPassword(password))
+    ) {
       return res.status(401).json({
         message: 'Invalid email or password'
       });
     }
 
-    // BLOCK PENDING
-    if (user.role !== 'admin' && user.verificationStatus === 'Pending') {
+
+    // =========================
+    // BLOCK PENDING USERS
+    // =========================
+    if (
+      user.role !== 'admin' &&
+      user.verificationStatus === 'Pending'
+    ) {
       return res.status(403).json({
-        message: 'Your account is pending admin approval'
+        message:
+          'Your account is pending admin approval'
       });
     }
 
-    // BLOCK REJECTED
-    if (user.role !== 'admin' && user.verificationStatus === 'Rejected') {
+
+    // =========================
+    // BLOCK REJECTED USERS
+    // =========================
+    if (
+      user.role !== 'admin' &&
+      user.verificationStatus === 'Rejected'
+    ) {
       return res.status(403).json({
-        message: 'Your account was rejected by admin'
+        message:
+          'Your account was rejected by admin'
       });
     }
 
-    // APPROVED USERS LOGIN
+
+    // =========================
+    // APPROVED USER LOGIN
+    // =========================
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
-      verificationStatus: user.verificationStatus,
-      ngoCertificate: user.ngoCertificate,
-      idProofType: user.idProofType,
+      verificationStatus:
+        user.verificationStatus,
+
+      ngoCertificate:
+        user.ngoCertificate,
+
+      idProofType:
+        user.idProofType,
+
+      idProof:
+        user.idProof,
+
       token: generateToken(user._id)
     });
 
   } catch (error) {
+    console.error('Login Error:', error);
+
     res.status(500).json({
       message: error.message
     });
   }
 };
+
 
 module.exports = {
   signup,

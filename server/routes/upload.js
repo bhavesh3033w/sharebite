@@ -1,38 +1,59 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
+const cloudinary = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-
-  destination: function(req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-
-  filename: function(req, file, cb) {
-    cb(
-      null,
-      Date.now() + '-' + file.originalname
-    );
-  }
-
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
-  storage: storage
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10 MB
+  }
 });
 
 router.post(
   '/certificate',
   upload.single('certificate'),
-  (req, res) => {
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          message: 'No file uploaded'
+        });
+      }
 
-    console.log(req.file);
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'sharebite/documents',
+          resource_type: 'auto'
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
 
-    res.json({
-      filePath: `/uploads/${req.file.filename}`
-    });
+            return res.status(500).json({
+              message: 'Cloudinary upload failed',
+              error: error.message
+            });
+          }
 
+          res.status(200).json({
+            message: 'File uploaded successfully',
+            filePath: result.secure_url
+          });
+        }
+      );
+
+      stream.end(req.file.buffer);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+
+      res.status(500).json({
+        message: error.message
+      });
+    }
   }
 );
 
