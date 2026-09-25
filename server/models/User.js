@@ -2,108 +2,112 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
-{
- name:{
-  type:String,
-  required:[true,'Name is required'],
-  trim:true
- },
+  {
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true
+    },
 
- email:{
-  type:String,
-  required:[true,'Email is required'],
-  unique:true,
-  lowercase:true,
-  trim:true
- },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
 
- password:{
-  type:String,
-  required:[true,'Password is required'],
-  minlength:6
- },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      minlength: 6
+    },
 
- role:{
-  type:String,
-  enum:[
-   'donor',
-   'ngo',
-   'volunteer',
-   'admin'
-  ],
-  required:[true,'Role is required']
- },
+    role: {
+      type: String,
+      enum: [
+        'donor',
+        'ngo',
+        'volunteer',
+        'admin'
+      ],
+      required: [true, 'Role is required']
+    },
 
- verificationStatus:{
-  type:String,
-  enum:[
-   'Pending',
-   'Approved',
-   'Rejected'
-  ],
-  default:'Pending'
- },
+    verificationStatus: {
+      type: String,
+      enum: [
+        'Pending',
+        'Approved',
+        'Rejected'
+      ],
+      default: 'Pending'
+    },
 
+    // NGO REGISTRATION CERTIFICATE
+    ngoCertificate: {
+      type: String,
+      default: ''
+    },
 
- // NEW NGO CERTIFICATE FIELDS
+    certificateVerified: {
+      type: Boolean,
+      default: false
+    },
 
- ngoCertificate:{
-  type:String,
-  default:''
- },
+    // VOLUNTEER ID PROOF TYPE
+    idProofType: {
+      type: String,
+      default: ''
+    },
 
- certificateVerified:{
-  type:Boolean,
-  default:false
- },
-
- idProofType:{
-  type:String,
-  default:''
- }
-
-},
-{timestamps:true}
+    // VOLUNTEER ID PROOF CLOUDINARY URL
+    idProof: {
+      type: String,
+      default: ''
+    }
+  },
+  {
+    timestamps: true
+  }
 );
 
 
 // PASSWORD HASH
 userSchema.pre(
-'save',
-async function(next){
+  'save',
+  async function (next) {
 
- if(!this.isModified('password'))
- return next();
+    if (!this.isModified('password')) {
+      return next();
+    }
 
- const salt=
- await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(10);
 
- this.password=
- await bcrypt.hash(
-  this.password,
-  salt
- );
+    this.password = await bcrypt.hash(
+      this.password,
+      salt
+    );
 
- next();
-
-}
+    next();
+  }
 );
 
 
 // COMPARE PASSWORD
-userSchema.methods.matchPassword=
-async function(enteredPassword){
+userSchema.methods.matchPassword =
+  async function (enteredPassword) {
 
- return await bcrypt.compare(
-  enteredPassword,
-  this.password
- );
+    return await bcrypt.compare(
+      enteredPassword,
+      this.password
+    );
 
-};
+  };
 
 
-module.exports=
-mongoose.model(
-'User',
-userSchema
-);
+module.exports =
+  mongoose.model(
+    'User',
+    userSchema
+  );
